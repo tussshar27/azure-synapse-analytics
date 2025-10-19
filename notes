@@ -23,6 +23,16 @@ purpose:
 it stores secretly without exposing them in public.
 
 
+All Azure Authentication Methods:
+| Method                                      | Type                       | Secrets Stored?                      | Scope                   | Common Use Case                                 | Security Level                       |
+| ------------------------------------------- | -------------------------- | ------------------------------------ | ----------------------- | ----------------------------------------------- | ------------------------------------ |
+| **1. Managed Identity (MI)**                | Azure AD-based             | ❌ No                                | Resource or Service     | Synapse, ADF, Databricks, Logic Apps, Functions | 🔒 **Very High**                     |
+| **2. Shared Access Signature (SAS Token)**  | Key-based temporary access | ✅ Yes                               | Container / Blob / File | External apps or short-term access              | ⚠️ Medium                            |
+| **3. Storage Account Access Key**           | Key-based permanent access | ✅ Yes                               | Entire storage account  | Legacy apps or admin-level access               | ⚠️ Low                               |
+| **4. Service Principal (App Registration)** | Azure AD-based             | ✅ Yes (Client secret / certificate) | Application-level       | CI/CD pipelines, automation                     | 🔒 High                              |
+| **5. User Delegation SAS**                  | Azure AD-based (temporary) | ✅ Yes (generated via token)         | Blob / Container        | Short-lived, user-scoped access                 | 🔒 High                              |
+| **6. Anonymous Access (Public Blob)**       | None                       | ❌ No                                | Public container only   | Static public data hosting                      | 🚫 Very Low (Avoid in secure setups) |
+
 
 
 
