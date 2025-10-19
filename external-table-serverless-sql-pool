@@ -3,19 +3,46 @@ Serverless SQL Pool queries external data (structured or semi-structured like CS
 
 To access data, we can use OPENROWSET() or External Table.
 
-Steps to create External Table:
-1. Create Database (not a physical database , logical database is created to store metadata)
-CREATE DATABASE myserverlessdb;
+Why we create a database in Serverless SQL Pool?
+Even though Serverless SQL Pool does not store data, it still needs a logical database to store metadata and object definitions — not the actual data.
 
+Flow to create External Table:
+1. create DATABASE (for metadata)
+2. create MASTER KEY
+3. create DATABASE SCOPED CREDENTIAL
+4. create EXTERNAL DATA SOURCE
+5. create EXTERNAL FILE FORMAT
+6. create EXTERNAL TABLE
+
+Steps to create External Table:
+
+1. Create Database (not a physical database, logical database is created to store metadata)
+CREATE DATABASE myserverlessdb;
 USE myserverlessdb;
 
-2. Create MASTER KEY
+
+
+2. Create MASTER KEY (not required if we use default Managed Identity)
 CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'YourStrongPassword123!';
 
-3. Create DATABASE SCOPED CREDENTIAL
+
+
+3. Create DATABASE SCOPED CREDENTIAL (optional for Managed Identity, required for all other)
 for Managed Identity:
 CREATE DATABASE SCOPED CREDENTIAL MyStorageCredential
 WITH IDENTITY = 'Managed Identity';
+
+for access key:
+CREATE DATABASE SCOPED CREDENTIAL <credential name>
+WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
+SECRET = '<your_storage_account_key>';
+
+for service principal:
+CREATE DATABASE SCOPED CREDENTIAL <service_principal_credential>
+WITH IDENTITY = '<your_appilication_id@https://login.microsoftonline.com/<Your-Tenant-ID>/oauth2/token>',
+SECRET = 'your_client_secret';
+
+
 
 4. Create EXTERNAL DATA SOURCE
 CREATE EXTERNAL DATA SOURCE MyExternalDataSource
@@ -72,6 +99,8 @@ WITH (
     DATA_SOURCE = MyExternalDataSource,
     FILE_FORMAT = CsvFileFormat
 );
+
+
 
 7. query the External Tables:
 SELECT * FROM dbo.ParquetSalesData;
