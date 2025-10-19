@@ -8,11 +8,11 @@ Even though Serverless SQL Pool does not store data, it still needs a logical da
 
 Flow to create External Table:
 1. create DATABASE (for metadata)
-2. create MASTER KEY
-3. create DATABASE SCOPED CREDENTIAL
-4. create EXTERNAL DATA SOURCE
+2. create MASTER KEY (Encrypts)
+3. create DATABASE SCOPED CREDENTIAL (Stores secrets securely)
+4. create EXTERNAL DATA SOURCE (Uses credentials for access)
 5. create EXTERNAL FILE FORMAT
-6. create EXTERNAL TABLE
+6. create EXTERNAL TABLE (Reads data using the data source)a
 
 Steps to create External Table:
 
@@ -22,17 +22,18 @@ USE myserverlessdb;
 
 
 
-2. Create MASTER KEY (not required if we use default Managed Identity)
+2. Create MASTER KEY (not required if we use default Managed Identity)(encryption foundation)
 CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'YourStrongPassword123!';
 
 
 
-3. Create DATABASE SCOPED CREDENTIAL (optional for Managed Identity, required for all other)
+3. Create DATABASE SCOPED CREDENTIAL (optional for Managed Identity, required for all other)(stores external access secrets)
+types:
 for Managed Identity:
 CREATE DATABASE SCOPED CREDENTIAL MyStorageCredential
 WITH IDENTITY = 'Managed Identity';
 
-for access key:
+for access key (SAS Token):
 CREATE DATABASE SCOPED CREDENTIAL <credential name>
 WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
 SECRET = '<your_storage_account_key>';
@@ -44,7 +45,7 @@ SECRET = 'your_client_secret';
 
 
 
-4. Create EXTERNAL DATA SOURCE
+4. Create EXTERNAL DATA SOURCE (Create External Data Source (uses the credential))
 CREATE EXTERNAL DATA SOURCE MyExternalDataSource
 WITH (
     LOCATION = 'https://<storageaccount>.dfs.core.windows.net/<container>',
