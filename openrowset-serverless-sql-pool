@@ -1,4 +1,113 @@
-Serverless SQL Pool
+what is Serverless SQL Pool?
 Serverless SQL Pool queries external data (structured or semi-structured like CSV, Parquet, or JSON) directly from Azure Data Lake without storing it.
 
+what is OPENROWSET()?
+OPENROWSET() lets you query external data directly from ADLS Gen2 or Blob Storage without ingesting or storing it in Synapse.
+It’s ideal for ad-hoc queries, exploration, or lightweight transformations.
+
 To access data, we can use OPENROWSET() or External Table.
+
+Flow of using OPENROWSET():
+1. create DATABASE:
+CREATE DATABASE myserverlessdb;
+GO
+USE myserverlessdb;
+GO
+
+2. create MASTER KEY (required only once per database)
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'StrongPassword@123';
+GO
+
+3. create DATABASE SCOPED CREDENTIAL:
+using MANAGED IDENTITY:
+CREATE DATABASE SCOPED CREDENTIAL ManagedIdentityCred
+WITH IDENTITY = 'Managed Identity';
+
+using SAS TOKEN:
+CREATE DATABASE SCOPED CREDENTIAL SASCred
+WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
+SECRET = '<SAS_TOKEN>';
+
+using STORAGE ACCOUNT KEY:
+CREATE DATABASE SCOPED CREDENTIAL KeyCred
+WITH IDENTITY = 'storageaccountname',
+SECRET = '<STORAGE_KEY>';
+
+4. create EXTERNAL DATA SOURCE:
+using MANAGED IDENTITY:
+CREATE EXTERNAL DATA SOURCE MyLake_MI
+WITH (
+    LOCATION = 'https://mystorageaccount.dfs.core.windows.net/mycontainer',
+    CREDENTIAL = ManagedIdentityCred
+);
+
+using SAS TOKEN:
+CREATE EXTERNAL DATA SOURCE MyLake_SAS
+WITH (
+    LOCATION = 'https://mystorageaccount.dfs.core.windows.net/mycontainer',
+    CREDENTIAL = SASCred
+);
+
+using STORAGE ACCOUNT KEY:
+CREATE EXTERNAL DATA SOURCE MyLake_Key
+WITH (
+    LOCATION = 'https://mystorageaccount.blob.core.windows.net/mycontainer',
+    CREDENTIAL = KeyCred
+);
+
+5. using OPENROWSET():
+for PARQUET:
+SELECT *
+FROM OPENROWSET(
+    BULK 'data/parquet/*.parquet',
+    DATA_SOURCE = 'MyLake_MI',        #DATA_SOURCE = 'MyLake_SAS',          #DATA_SOURCE = 'MyLake_Key',
+    FORMAT = 'PARQUET'
+) AS rows;
+
+for CSV:
+SELECT *
+FROM OPENROWSET(
+    BULK 'data/csv/*.csv',
+    DATA_SOURCE = 'MyLake_MI',        #DATA_SOURCE = 'MyLake_SAS',          #DATA_SOURCE = 'MyLake_Key',
+    FORMAT = 'CSV',
+    PARSER_VERSION = '2.0',
+    HEADER_ROW = TRUE
+)
+WITH (
+    SaleID INT,
+    ProductName VARCHAR(100),
+    Quantity INT,
+    SaleDate DATE
+) AS rows;
+
+🧩 Best Practices:
+✅ Use Parquet/Delta over CSV for better performance and lower cost.
+✅ Always use explicit schema for CSV files.
+✅ Avoid SELECT *; select only required columns.
+✅ Use Managed Identity over SAS or keys.
+✅ Partition folders logically to enable query pruning (e.g., /year=2025/month=10/).
+✅ Wrap OPENROWSET() queries in views if used frequently.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
