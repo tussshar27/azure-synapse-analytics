@@ -56,7 +56,7 @@ for Managed Identity:
 CREATE DATABASE SCOPED CREDENTIAL MyStorageCredential
 WITH IDENTITY = 'Managed Identity';
 
-for access key (SAS Token):
+for SAS Token:
 CREATE DATABASE SCOPED CREDENTIAL <credential name>
 WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
 SECRET = '<your_storage_account_key>';
