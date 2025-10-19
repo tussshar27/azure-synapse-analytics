@@ -1,0 +1,4 @@
+Serverless SQL Pool
+Serverless SQL Pool queries external data (structured or semi-structured like CSV, Parquet, or JSON) directly from Azure Data Lake without storing it.
+
+To access data, we can use OPENROWSET() or External Table.
