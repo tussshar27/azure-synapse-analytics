@@ -1,1 +1,2 @@
 dedicated-sql-pool
+Dedicated SQL Pool stores structured data in relational tables within the data warehouse.
