@@ -26,12 +26,13 @@ Flow to create External Table:
         |                                                    |
     Access methods                                        Access methods
         |                                                    |
-  -----------------------                                 -----------------------
+  -----------------------                                 ---------------------------
+  |                     |                                 |                         |
+Managed Identity     SAS Token                          Managed Identity         SAS Token
+                       /Storage Account Access Key                                /Storage Account Access Key
+                       /Service Principal                                         /Service Principal
   |                     |                                 |                     |
-Managed Identity     SAS Token(Access Key)        Managed Identity         SAS Token(Access Key)
-                       /Service Principal                                     /Service Principal
-  |                   |                                 |                     |
-  |                   |                                 |                     |
+  |                     |                                 |                     |
 Master Key ❌      Master Key ✅                     Master Key ❌           Master Key ✅
 Credential ❌      Credential ✅                     Credential ❌           Credential ✅
 Query: OPENROWSET, EXTERNAL TABLE           Query: OPENROWSET, EXTERNAL TABLE
