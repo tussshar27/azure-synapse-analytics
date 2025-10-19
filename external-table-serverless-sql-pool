@@ -14,6 +14,28 @@ Flow to create External Table:
 5. create EXTERNAL FILE FORMAT
 6. create EXTERNAL TABLE (Reads data using the data source)a
 
+                       +-----------------------+
+                       |  Synapse Workspace    |
+                       |  Serverless SQL Pool  |
+                       +----------+------------+
+                                  |
+        ------------------------------------------------------
+        |                                                    |
+  Default Storage Account                               External Storage Account
+  (created with workspace)                              (any other ADLS/Blob)
+        |                                                    |
+    Access methods                                        Access methods
+        |                                                    |
+  -----------------------                                 -----------------------
+  |                     |                                 |                     |
+Managed Identity     SAS Token(Access Key)        Managed Identity         SAS Token(Access Key)
+                       /Service Principal                                     /Service Principal
+  |                   |                                 |                     |
+  |                   |                                 |                     |
+Master Key ❌      Master Key ✅                     Master Key ❌           Master Key ✅
+Credential ❌      Credential ✅                     Credential ❌           Credential ✅
+Query: OPENROWSET, EXTERNAL TABLE           Query: OPENROWSET, EXTERNAL TABLE
+
 Steps to create External Table:
 
 1. Create Database (not a physical database, logical database is created to store metadata)
