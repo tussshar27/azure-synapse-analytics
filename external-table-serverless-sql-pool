@@ -1,0 +1,106 @@
+Serverless SQL Pool
+Serverless SQL Pool queries external data (structured or semi-structured like CSV, Parquet, or JSON) directly from Azure Data Lake without storing it.
+
+To access data, we can use OPENROWSET() or External Table.
+
+Steps to create External Table:
+1. Create Database (not a physical database , logical database is created to store metadata)
+CREATE DATABASE myserverlessdb;
+
+USE myserverlessdb;
+
+2. Create MASTER KEY
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'YourStrongPassword123!';
+
+3. Create DATABASE SCOPED CREDENTIAL
+for Managed Identity:
+CREATE DATABASE SCOPED CREDENTIAL MyStorageCredential
+WITH IDENTITY = 'Managed Identity';
+
+4. Create EXTERNAL DATA SOURCE
+CREATE EXTERNAL DATA SOURCE MyExternalDataSource
+WITH (
+    LOCATION = 'https://<storageaccount>.dfs.core.windows.net/<container>',
+    CREDENTIAL = MyStorageCredential
+);
+
+
+
+5. Create EXTERNAL FILE FORMAT
+for Parquet:
+CREATE EXTERNAL FILE FORMAT ParquetFileFormat
+WITH (
+    FORMAT_TYPE = PARQUET
+);
+
+for CSV:
+CREATE EXTERNAL FILE FORMAT CsvFileFormat
+WITH (
+    FORMAT_TYPE = DELIMITEDTEXT,
+    FORMAT_OPTIONS (
+        FIELD_TERMINATOR = ',',
+        STRING_DELIMITER = '"',
+        FIRST_ROW = 2
+    )
+);
+
+6. Create EXTERNAL TABLE
+for Parquet:
+CREATE EXTERNAL TABLE dbo.ParquetSalesData
+(
+    SaleID INT,
+    ProductName VARCHAR(100),
+    Quantity INT,
+    SaleDate DATE
+)
+WITH (
+    LOCATION = '/data/parquet/sales/',
+    DATA_SOURCE = MyExternalDataSource,
+    FILE_FORMAT = ParquetFileFormat
+);
+
+for CSV:
+CREATE EXTERNAL TABLE dbo.CsvSalesData
+(
+    SaleID INT,
+    ProductName VARCHAR(100),
+    Quantity INT,
+    SaleDate DATE
+)
+WITH (
+    LOCATION = '/data/csv/sales/',
+    DATA_SOURCE = MyExternalDataSource,
+    FILE_FORMAT = CsvFileFormat
+);
+
+7. query the External Tables:
+SELECT * FROM dbo.ParquetSalesData;
+SELECT * FROM dbo.CsvSalesData;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
