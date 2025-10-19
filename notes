@@ -1,0 +1,76 @@
+1. what are master key and database scoped credential? what is the use of both?
+->
+master key provides the encryption to the other key secrets and credentials in the database.
+-- Creates the master encryption key for the database 
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'YourStrongPassword123!';
+
+purpose:
+it encrypts the secrets stored in database scoped credentials
+it allows automatic decryption.
+
+NOTE:
+you only create one per database.
+
+database scoped credential:
+it stored the authentication information (credential) needed to connect to external resources outside of SQL server.
+-- Stores authentication information for external resources
+-- example of using SAS Token:
+CREATE DATABASE SCOPED CREDENTIAL MyAzureCredential
+WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
+SECRET = 'sv=2020-08-04&ss=b&srt=sco&sp=rl&se=2024-01-01Z&sig=YourSignature';
+
+purpose:
+it stores secretly without exposing them in public.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
