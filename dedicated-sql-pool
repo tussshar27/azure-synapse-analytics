@@ -31,14 +31,30 @@ How fast the CREATE TABLE AS SELECT T-SQL command can copy a table. This operati
 How to work?
 1. Load data in azure data lake storage gen2 / azure blob storage.
 2. create table inside dedicated sql pool using any distribution strategy as per the data (Hash , Round-robin or replicated)
-3. use COPY INTO statement to load data into your above created staging table.
+3. use COPY INTO statement or CTAS to load data into your above created staging table.
 
+There are two ways to load data from data lake into dedicated SQL pool:
+1. COPY INTO
+2. CTAS (Polybase)
+
+for both we need to first create target table.
+below mentioned objects are same to be created for both COPY INTO and CETAS.
+
+1. create TARGET TABLE
+2. create MASTER KEY (if you haven't created for your DB previously)
+3. create DATABASE SCOPED CREDENTIAL
+4. create EXTERNAL DATA SOURCE
+5. create EXTERNAL FILE FORMAT
+6. run COPY INTO statement mentioning our target table.
+
+NOTE: DATABASE SCOPED CREDENTIALS need to be created and it is independent of CRDENTIAL created inside Serverless SQL pool.
 
 COPY INTO Documentation:
 https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?toc=%2Fazure%2Fsynapse-analytics%2Fsql-data-warehouse%2Ftoc.json&view=azure-sqldw-latest&preserve-view=true
 
 Example:
 COPY INTO:
+for CSV:
 COPY INTO dbo.Sales
 FROM 'https://storageaccount.dfs.core.windows.net/container/sales/'
 WITH (
@@ -48,8 +64,19 @@ WITH (
   CREDENTIAL = (IDENTITY = 'Managed Identity')
 );
 
+for PARQUET:
+COPY INTO dbo.Sales
+FROM 'https://storageaccount.dfs.core.windows.net/container/sales/'
+WITH (
+  FILE_TYPE = 'PARQUET',
+  CREDENTIAL = (IDENTITY = 'Managed Identity')
+);
 
-Polybase (CREATE EXTERNAL TABLE + CTAS/INSERT):
+
+
+CETAS Polybase (CREATE EXTERNAL TABLE + CETAS/INSERT):
+NOTE: for CETAS, abfss file path is used which is available in storage account > container > properties.
+
 CREATE EXTERNAL DATA SOURCE MyADLS
 WITH (LOCATION = 'https://storageaccount.dfs.core.windows.net/container/');
 
@@ -65,6 +92,8 @@ DISTRIBUTION = ROUND_ROBIN
 )
 AS SELECT * FROM ext.Sales;
 
+
+NOTE: after using , don't forget to pause your dedicated SQL pool.
 
 
 
