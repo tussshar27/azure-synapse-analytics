@@ -1,2 +1,76 @@
 dedicated-sql-pool
-Dedicated SQL Pool stores structured data in relational tables within the data warehouse.
+Dedicated SQL Pool(formerly Azure SQL Data Warehouse) is a fully managed, scalable, and distributed MPP (Massively Parallel Processing) that stores structured data in relational tables within the data warehouse.
+
+A distribution is the basic unit of storage and processing for parallel queries that run on distributed data. 
+When Synapse SQL runs a query, the work is divided into 60 smaller queries that run in parallel.
+
+Each of the 60 smaller queries runs on one of the data distributions. 
+Each Compute node manages one or more of the 60 distributions. 
+A dedicated SQL pool (formerly SQL DW) with maximum compute resources has one distribution per Compute node. A dedicated SQL pool (formerly SQL DW) with minimum compute resources has all the distributions on one compute node.
+
+The Compute nodes provide the computational power. Distributions map to Compute nodes for processing. As you pay for more compute resources, distributions are remapped to available Compute nodes. The number of compute nodes ranges from 1 to 60.
+
+The data is sharded into distributions to optimize the performance by following patterns like:
+1. Hash
+2. Round Robin
+3. Replicate
+
+Data Warehouse Units (DWUs):
+The combination of CPU, memory, and IO are bundled together into units of compute known as Data Warehouse Units.
+
+For higher performance, you can increase the number of data warehouse units. For less performance, reduce data warehouse units. 
+Storage and compute costs are billed separately, so changing data warehouse units does not affect storage costs.
+
+Use of CPU , IO and Network :
+Performance for data warehouse units is based on these data warehouse workload metrics:
+
+How fast a standard dedicated SQL pool (formerly SQL DW) query can scan a large number of rows and then perform a complex aggregation. This operation is I/O and CPU intensive.
+How fast the dedicated SQL pool (formerly SQL DW) can ingest data from Azure Storage Blobs or Azure Data Lake. This operation is network and CPU intensive.
+How fast the CREATE TABLE AS SELECT T-SQL command can copy a table. This operation involves reading data from storage, distributing it across the nodes of the appliance and writing to storage again. This operation is CPU, IO, and network intensive.
+
+How to work?
+1. Load data in azure data lake storage gen2 / azure blob storage.
+2. create table inside dedicated sql pool using any distribution strategy as per the data (Hash , Round-robin or replicated)
+3. use COPY INTO statement to load data into your above created staging table.
+
+
+COPY INTO Documentation:
+https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?toc=%2Fazure%2Fsynapse-analytics%2Fsql-data-warehouse%2Ftoc.json&view=azure-sqldw-latest&preserve-view=true
+
+Example:
+COPY INTO:
+COPY INTO dbo.Sales
+FROM 'https://storageaccount.dfs.core.windows.net/container/sales/'
+WITH (
+  FILE_TYPE = 'CSV',
+  FIELDTERMINATOR = ',',
+  ROWTERMINATOR = '0x0A',
+  CREDENTIAL = (IDENTITY = 'Managed Identity')
+);
+
+
+Polybase (CREATE EXTERNAL TABLE + CTAS/INSERT):
+CREATE EXTERNAL DATA SOURCE MyADLS
+WITH (LOCATION = 'https://storageaccount.dfs.core.windows.net/container/');
+
+CREATE EXTERNAL FILE FORMAT MyCSVFormat
+WITH (FORMAT_TYPE = DELIMITEDTEXT, FIELD_TERMINATOR = ',', STRING_DELIMITER = '"');
+
+CREATE EXTERNAL TABLE ext.Sales (...)
+WITH (DATA_SOURCE = MyADLS, FILE_FORMAT = MyCSVFormat, LOCATION = '/sales/');
+
+CREATE TABLE dbo.Sales
+WITH (
+DISTRIBUTION = ROUND_ROBIN
+)
+AS SELECT * FROM ext.Sales;
+
+
+
+
+
+
+
+
+
+
