@@ -33,7 +33,11 @@ All Azure Authentication Methods:
 | **5. User Delegation SAS**                  | Azure AD-based (temporary) | ✅ Yes (generated via token)         | Blob / Container        | Short-lived, user-scoped access                 | 🔒 High                              |
 | **6. Anonymous Access (Public Blob)**       | None                       | ❌ No                                | Public container only   | Static public data hosting                      | 🚫 Very Low (Avoid in secure setups) |
 
+External location for Blob Storage: 
+https://<account\>.blob.core.windows.net/<container\>/<path\>
 
+External location for ADLS Gen2: 
+https://<account\>.dfs.core.windows.net/<container\>/<path\>
 
 
 
