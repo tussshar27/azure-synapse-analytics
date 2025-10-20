@@ -8,7 +8,7 @@ Even though Serverless SQL Pool does not store data, it still needs a logical da
 
 Flow to create External Table:
 1. create DATABASE (storage for metadata)
-2. create MASTER KEY (Encrypts secrets)
+2. create MASTER KEY (Encrypts secrets) (one time per db)
 3. create DATABASE SCOPED CREDENTIAL (Stores secrets securely)
 4. create EXTERNAL DATA SOURCE (Uses credentials for access)
 5. create EXTERNAL FILE FORMAT
