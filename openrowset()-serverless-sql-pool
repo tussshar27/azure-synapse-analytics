@@ -72,6 +72,16 @@ FROM OPENROWSET(
     FORMAT = 'CSV',
     PARSER_VERSION = '2.0',
     HEADER_ROW = TRUE
+) AS rows;
+
+for more granular level:
+SELECT *
+FROM OPENROWSET(
+    BULK 'data/csv/*.csv',
+    DATA_SOURCE = 'MyLake_MI',        #DATA_SOURCE = 'MyLake_SAS',          #DATA_SOURCE = 'MyLake_Key',
+    FORMAT = 'CSV',
+    PARSER_VERSION = '2.0',
+    HEADER_ROW = TRUE
 )
 WITH (
     SaleID INT,
