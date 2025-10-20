@@ -35,11 +35,24 @@ All Azure Authentication Methods:
 | **5. User Delegation SAS**                  | Azure AD-based (temporary) | ✅ Yes (generated via token)         | Blob / Container        | Short-lived, user-scoped access                 | 🔒 High                              |
 | **6. Anonymous Access (Public Blob)**       | None                       | ❌ No                                | Public container only   | Static public data hosting                      | 🚫 Very Low (Avoid in secure setups) |
 
+There are two types in Managed Identity (MI):
+1. System assigned managed identity.
+for internal resource authentication (ADF → Synapse pipeline triggers)
+it is automatically created which is attached to resource so if the resource is killed then it will also gets killed.
+
+2. User assigned managed identity (UAMI).
+for external access (ADLS, Key Vault)
+it is independently created and not attached to any resource so if the resource gets killed then it won't affect UAMI.
+Example: when we are using multiple services in a single project such as ADLS, ADF, Azure Databricks, Azure synapse then UAMI is recommended to be used.
+
 External location for Blob Storage: 
 https://<account\>.blob.core.windows.net/<container\>/<path\>
 
 External location for ADLS Gen2: 
 https://<account\>.dfs.core.windows.net/<container\>/<path\>
+
+NOTE: IF WE ARE USING EXTERNAL TABLE OR OPENROWSET() WHICH EVENTUALLY USES EXTERNAL DATA SOURCE THEN THERE IS NO NEED OF CREATING LINKED SERVICE.
+
 
 
 
